@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 df = yf.download("BTC-USD", period="730d", interval="1h")
 df.columns = df.columns.get_level_values(0)
 df = df[['Close', 'Volume']].copy()
-
 # 2. Feature Engineering
 df['return'] = np.log(df['Close'] / df['Close'].shift(1))
 df['sma_20'] = df['Close'].rolling(20).mean()
@@ -36,7 +35,6 @@ features = [
     'return', 'dist_sma_20', 'volatility',
     'rsi', 'macd', 'macd_signal', 'bb_width', 'Volume'
 ]
-
 # 3. Walk-forward Backtest
 train_len = int(len(df) * 0.6)
 test_len = int(len(df) * 0.1)
@@ -70,7 +68,6 @@ for i in range(train_len, len(df) - test_len, test_len):
         capital *= (1 + pos * r - cost)
         equity.append(capital)
         positions.append(pos)
-
 # 4. Performance Metrics
 equity = np.array(equity)
 returns = np.diff(np.log(equity))
@@ -80,14 +77,12 @@ drawdown = equity / cummax - 1
 max_dd = drawdown.min()
 print(f"Sharpe Ratio: {sharpe:.2f}")
 print(f"Max Drawdown: {max_dd:.2%}")
-
 # 5. Plot
 plt.figure(figsize=(12, 5))
 plt.plot(equity)
 plt.title("Equity Curve (Full Walk-forward)")
 plt.grid()
 plt.show()
-
 ax = lgb.plot_importance(model, importance_type='gain', max_num_features=10)
 ax.set_title("Feature Importance")
 plt.show()

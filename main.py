@@ -9,12 +9,10 @@ ticker = "SPY"
 data = yf.download(ticker, start="2020-01-01", end="2024-01-01")
 # 只需要收盤價
 df = data[['Close']].copy()
-
 # 2. 特徵工程 (Feature Engineering)
 # 計算短期 (20日) 與長期 (50日) 移動平均
 df['SMA_20'] = df['Close'].rolling(window=20).mean()
 df['SMA_50'] = df['Close'].rolling(window=50).mean()
-
 # 3. 生成信號 (Signal Generation)
 # 初始化信號為 0
 df['Signal'] = 0.0
@@ -25,7 +23,6 @@ df.loc[df.index[50:], 'Signal'] = \
 # 計算買賣點 (Position)：Signal 的差分
 # 1 - 0 = 1 (買入), 0 - 1 = -1 (賣出)
 df['Position'] = df['Signal'].diff()
-
 # 4. 視覺化檢查
 plt.figure(figsize=(14, 7))
 plt.plot(df['Close'], label='Close Price', alpha=0.5)
@@ -42,7 +39,6 @@ plt.plot(df[df['Position'] == -1].index,
 plt.title(f'{ticker} Dual Moving Average Crossover Strategy')
 plt.legend()
 plt.show()
-
 import numpy as np
 # 5. 回測 (Backtesting)
 # 計算每日市場報酬率 (Log returns are often preferred in quant finance, but simple returns are okay here)
@@ -52,7 +48,6 @@ df['Market_Returns'] = df['Close'].pct_change()
 # shift(1) 是關鍵！因為今天的信號是基於今天收盤產生的，只能在「明天」開盤執行
 # 如果不 shift，會變成「預知未來」(Look-ahead Bias)，這是新手最常犯的錯
 df['Strategy_Returns'] = df['Market_Returns'] * df['Signal'].shift(1)
-
 # 6. 績效評估 (Performance Metrics)
 # 計算累積報酬 (Cumulative Returns)
 df['Cumulative_Market'] = (1 + df['Market_Returns']).cumprod()

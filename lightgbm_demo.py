@@ -9,7 +9,6 @@ print("正在下載數據...")
 df = yf.download("BTC-USD", period="730d", interval="1h")
 df.columns = df.columns.get_level_values(0)
 df = df[['Close', 'Volume']].copy()
-
 # 2. 特徵工程
 print("正在計算特徵...")
 # Log return
@@ -36,7 +35,6 @@ bb_std = df['Close'].rolling(20).std()
 df['bb_upper'] = bb_mid + 2 * bb_std
 df['bb_lower'] = bb_mid - 2 * bb_std
 df['bb_width'] = (df['bb_upper'] - df['bb_lower']) / bb_mid
-
 # 預測目標：下一小時報酬（回歸）
 df['target'] = df['return'].shift(-1)
 df = df.dropna()
@@ -75,7 +73,6 @@ for start in range(train_size, len(df) - test_size, test_size):
     for r in strategy_return:
         capital *= (1 + r)
         equity_curve.append(capital)
-
 # 5. 繪圖
 plt.figure(figsize=(12, 5))
 plt.plot(equity_curve)
@@ -84,7 +81,6 @@ plt.xlabel("Time")
 plt.ylabel("Capital")
 plt.grid(True)
 plt.show()
-
 # 6. 特徵重要性
 ax = lgb.plot_importance(model, importance_type='gain', max_num_features=10)
 ax.set_title("Feature Importance")
